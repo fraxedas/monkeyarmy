@@ -15,21 +15,33 @@ namespace monkeyarmy.jungle
         public IList<Func<ServiceController, bool>> Selectors { get; set; }
         public IEnumerable<ServiceController> Services { get; set; }
 
-        public ServiceMonkey ServiceNameStartsWith(string name)
+        public ServiceMonkey WithServiceNameStartingWith(string name)
         {
             Selectors.Add(controller => controller.ServiceName.StartsWith(name));
             return this;
         }
 
-        public ServiceMonkey ServiceWithName(string name)
+        public ServiceMonkey WithServiceWithName(string name)
         {
             Selectors.Add(controller => controller.ServiceName.Equals(name));
             return this;
         }
 
-        public ServiceMonkey ServiceNameContains(string name)
+        public ServiceMonkey WithServiceNameContaining(string name)
         {
             Selectors.Add(controller => controller.ServiceName.Contains(name));
+            return this;
+        }
+
+        public ServiceMonkey IfServiceIsRunning()
+        {
+            Selectors.Add(controller => controller.Status == ServiceControllerStatus.Running);
+            return this;
+        }
+
+        public ServiceMonkey IfServiceIsStopped()
+        {
+            Selectors.Add(controller => controller.Status == ServiceControllerStatus.Stopped);
             return this;
         }
 
@@ -40,7 +52,7 @@ namespace monkeyarmy.jungle
             {
                 if (Selectors.All(x => x(service)))
                 {
-                    Console.Out.WriteLine("service = {0}", service.ServiceName);
+                    Console.Out.WriteLine("{0} is {1}", service.ServiceName, service.Status);
                     Wreck(service);
                 }
             }
