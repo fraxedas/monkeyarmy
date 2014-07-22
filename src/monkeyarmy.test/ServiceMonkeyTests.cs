@@ -8,14 +8,15 @@ namespace monkeyarmy.test
     [TestFixture]
     public class ServiceMonkeyTests
     {
-        private ServiceMonkey _monkey;
+        private Monkey _monkey;
 
         [Test]
         public void Test_werck_change_the_status_of_a_running_service_to_stopped()
         {
             _monkey = new ServiceMonkey()
                 .WithServiceNameContaining("MSDTC")
-                .IfServiceIsRunning();
+                .IfServiceIsRunning()
+                .StopService();
 
             _monkey.Wreck();
 
@@ -28,7 +29,8 @@ namespace monkeyarmy.test
         {
             _monkey = new ServiceMonkey()
                 .WithServiceNameContaining("MSDTC")
-                .IfServiceIsStopped();
+                .IfServiceIsStopped()
+                .StartService();
 
             _monkey.Wreck();
 

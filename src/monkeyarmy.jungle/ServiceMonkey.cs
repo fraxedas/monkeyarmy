@@ -10,10 +10,11 @@ namespace monkeyarmy.jungle
         public ServiceMonkey()
         {
             Selectors = new List<Func<ServiceController, bool>>();
+            Actions = new List<Action<ServiceController>>();
         }
 
         public IList<Func<ServiceController, bool>> Selectors { get; set; }
-        public IEnumerable<ServiceController> Services { get; set; }
+        public IList<Action<ServiceController>> Actions { get; set; }
 
         public ServiceMonkey WithServiceNameStartingWith(string name)
         {
@@ -45,31 +46,37 @@ namespace monkeyarmy.jungle
             return this;
         }
 
-        public override void Wreck()
+        public ServiceMonkey StartService()
         {
-            ServiceController[] services = ServiceController.GetServices();
-            foreach (ServiceController service in services)
-            {
-                if (Selectors.All(x => x(service)))
-                {
-                    Console.Out.WriteLine("{0} is {1}", service.ServiceName, service.Status);
-                    Wreck(service);
-                }
-            }
+            Actions.Add(controller =>
+                            {
+                                controller.Start();
+                                controller.WaitForStatus(ServiceControllerStatus.Running);
+                            });
+            return this;
         }
 
-        private void Wreck(ServiceController service)
+        public ServiceMonkey StopService()
         {
-            switch (service.Status)
+            Actions.Add(controller =>
             {
-                case ServiceControllerStatus.Running:
-                    service.Stop();
-                    service.WaitForStatus(ServiceControllerStatus.Stopped);
-                    break;
-                case ServiceControllerStatus.Stopped:
-                    service.Start();
-                    service.WaitForStatus(ServiceControllerStatus.Running);
-                    break;
+                controller.Stop();
+                controller.WaitForStatus(ServiceControllerStatus.Stopped);
+            });
+            return this;
+        }
+
+        public override void Wreck()
+        {
+            var services = ServiceController.GetServices();
+            foreach (ServiceController service in services)
+            {
+                if (!Selectors.All(x => x(service))) continue;
+                Console.Out.WriteLine("{0} is {1}", service.ServiceName, service.Status);
+                foreach (var action in Actions)
+                {
+                    action(service);
+                }
             }
         }
     }
