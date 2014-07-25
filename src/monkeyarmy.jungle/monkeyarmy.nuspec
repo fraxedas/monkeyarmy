@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>monkeyarmy</id>
+    <version>$version$</version>
+    <title>Monkey Army</title>
+    <authors>Oscar Fraxedas</authors>
+    <owners>ofraxedas</owners>
+    <projectUrl>https://github.com/fraxedas/monkeyarmy</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Some monkeys to werck your infrastructure</description>
+    <releaseNotes>A very initial commit</releaseNotes>
+    <copyright>Copyright 2014</copyright>
+    <tags>monkey army</tags>
+  </metadata>
+</package>
